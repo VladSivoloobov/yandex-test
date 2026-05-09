@@ -29,9 +29,14 @@
   --color-secondary-background: #e9ded4;
   --color-hero-background: #e9ded4;
 
+  --color-table-border: #d0d0d0;
+  --color-table-th: #313131b3;
+
   --color-button-primary: #313131;
 
-  --header-height: 36px;
+  --header-active-background: #313131;
+
+  --header-height: calc(36px + 26px * 2);
 
   --scrolling-text-gap: 12px;
 }

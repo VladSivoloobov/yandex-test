@@ -4,7 +4,7 @@
   box-sizing: border-box;
   color: var(--color-text-primary);
   line-height: var(--line-s);
-  font-family: Merryweather;
+  font-family: Merriweather;
   letter-spacing: 0px;
   background-color: transparent;
   outline: none;
@@ -38,4 +38,40 @@ h2 {
 
 h3 {
   font-size: var(--font-xl);
+}
+
+img {
+  object-fit: cover;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table :is(th, td) {
+  border: 2px solid var(--color-table-border);
+  padding: 16px;
+  text-align: left;
+  font-family: Golostext;
+  font-size: var(--font-l);
+}
+
+table tr:first-child :is(th, td) {
+  border-top: none;
+}
+
+table tr th {
+  border-left: none;
+  color: var(--color-table-th);
+  font-weight: 400;
+}
+
+table tr td {
+  border-right: none;
+  font-weight: 600;
+}
+
+table tr:last-child :is(th, td) {
+  border-bottom: none;
 }
