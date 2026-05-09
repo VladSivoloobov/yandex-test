@@ -1,0 +1,33 @@
+:root {
+  /* Font Sizes */
+  --font-3xl: 60px;
+  --font-2xl: 54px;
+  --font-xl: 36px;
+  --font-l: 20px;
+  --font-m: 18px;
+  --font-s: 16px;
+
+  /* Font Line Heights */
+  --line-l: 135%;
+  --line-m: 130%;
+  --line-s: 120%;
+  --line-2s: 110%;
+  --line-default: 100%;
+
+  /* Colors */
+  --color-primary: #f54932;
+  --color-tertiary: #3057a2;
+
+  --color-text-primary: #313131;
+  --color-text-secondary: var(--color-primary);
+  --color-text-tertiary: #3057a2;
+  --color-text-light: #313131b3;
+
+  --color-primary-background: white;
+  --color-secondary-background: #e9ded4;
+  --color-hero-background: #e9ded4;
+
+  --color-button-primary: #313131;
+
+  --header-height: 36px;
+}

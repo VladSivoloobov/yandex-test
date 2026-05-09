@@ -1,0 +1,47 @@
+/* GolosText */
+@font-face {
+  font-family: GolosText;
+  src: url('/src/fonts/golos-text/GolosText-Regular.woff');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: GolosText;
+  src: url('/src/fonts/golos-text/GolosText-Medium.woff');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: GolosText;
+  src: url('/src/fonts/golos-text/GolosText-Bold.woff');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: GolosText;
+  src: url('/src/fonts/golos-text/GolosText-SemiBold.woff');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: GolosText;
+  src: url('/src/fonts/golos-text/GolosText-ExtraBold.woff');
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: GolosText;
+  src: url('/src/fonts/golos-text/GolosText-Black.woff');
+  font-style: normal;
+}
+
+/* Merriweather */
+@font-face {
+  font-family: Merriweather;
+  src: url('/src/fonts/Merriweather.ttf');
+}

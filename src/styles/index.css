@@ -1,0 +1,68 @@
+@import url('./fonts.css');
+@import url('./override.css');
+@import url('./variables.css');
+@import url('./utils.css');
+@import url('./buttons.css');
+
+.container {
+  max-width: 1366px;
+  padding: 0 72px;
+  margin: 0 auto;
+}
+
+.section {
+  margin: 120px 0;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  padding: 26px 0;
+  height: var(--header-height);
+  width: 100%;
+}
+
+.hero-section {
+  padding-top: calc(var(--header-height) + 62px);
+  margin-top: 0;
+}
+
+.hero-section__hero-content {
+  max-width: 542px;
+}
+
+.hero-content__hero-title {
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.hero-title__center {
+  text-align: center;
+  display: block;
+}
+
+.hero-content__hero-subtitle {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.hero-content__hero-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.hero-content__hero-buttons .btn {
+  flex: 1;
+}
+
+.hero-section {
+  background:
+    url('/src/images/background-pattern.png') center,
+    url('/src/images/chess-front.png') no-repeat bottom right 17%,
+    url('/src/images/city.png') no-repeat bottom right,
+    url('/src/images/chess-back.png') no-repeat bottom 50% right 26%,
+    url('/src/images/background-sun.svg') no-repeat bottom right 17%,
+    var(--color-hero-background);
+  background-size: cover, 30%, contain, 27%, contain;
+  background-blend-mode: color-burn, normal, normal, normal, normal;
+}

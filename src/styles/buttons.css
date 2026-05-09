@@ -1,0 +1,21 @@
+.btn {
+  display: block;
+  border-radius: 66px;
+  text-decoration: none;
+  text-align: center;
+  padding: 20px;
+  font-size: var(--font-s);
+  line-height: var(--line-m);
+  font-weight: 500;
+  font-family: GolosText;
+}
+
+.btn.btn_primary {
+  background-color: var(--color-button-primary);
+  color: white;
+}
+
+.btn.btn_secondary {
+  background-color: transparent;
+  border: 2px solid var(--color-button-primary);
+}
