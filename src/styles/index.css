@@ -56,13 +56,45 @@
 }
 
 .hero-section {
+  padding-bottom: 132px;
   background:
     url('/src/images/background-pattern.png') center,
-    url('/src/images/chess-front.png') no-repeat bottom right 17%,
-    url('/src/images/city.png') no-repeat bottom right,
-    url('/src/images/chess-back.png') no-repeat bottom 50% right 26%,
-    url('/src/images/background-sun.svg') no-repeat bottom right 17%,
+    url('/src/images/background-city.png') bottom no-repeat,
     var(--color-hero-background);
-  background-size: cover, 30%, contain, 27%, contain;
-  background-blend-mode: color-burn, normal, normal, normal, normal;
+  background-size: cover, contain;
+  background-blend-mode: color-burn, normal;
+  margin-bottom: 0;
+}
+
+.section.scrolling-text-section {
+  margin: 0;
+}
+
+.scrolling-text {
+  display: flex;
+  gap: 12px;
+  list-style: none;
+  background-color: var(--color-primary);
+  padding: 12px 0;
+}
+
+.scrolling-text .scrolling-text__item {
+  color: var(--color-text-white);
+  font-size: var(--font-2l);
+  font-family: Merriweather;
+  line-height: var(--line-2s);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.scrolling-text__item::before {
+  display: block;
+  content: '';
+  background-color: white;
+  height: 6px;
+  width: 6px;
+  border-radius: 100%;
 }

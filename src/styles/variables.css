@@ -3,6 +3,7 @@
   --font-3xl: 60px;
   --font-2xl: 54px;
   --font-xl: 36px;
+  --font-2l: 22px;
   --font-l: 20px;
   --font-m: 18px;
   --font-s: 16px;
@@ -22,6 +23,7 @@
   --color-text-secondary: var(--color-primary);
   --color-text-tertiary: #3057a2;
   --color-text-light: #313131b3;
+  --color-text-white: white;
 
   --color-primary-background: white;
   --color-secondary-background: #e9ded4;
@@ -30,4 +32,6 @@
   --color-button-primary: #313131;
 
   --header-height: 36px;
+
+  --scrolling-text-gap: 12px;
 }
