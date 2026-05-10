@@ -31,24 +31,6 @@ const addDuplicateClassToItems = (elements) =>
   elements.forEach((element) => element.classList.add('duplicate'));
 
 /**
- * This function is removing group
- * with original and duplicate
- * @param {HTMLUListElement} scrollingTextElement
- * @param {number} groupItemsCount
- */
-const removeLastGroupOfItems = (scrollingTextElement, groupItemsCount) => {
-  const originalItems = Array.from(getOriginalItems(scrollingTextElement));
-  const duplicateItems = Array.from(getDuplicateItems(scrollingTextElement));
-
-  const groupOfOriginalItems = originalItems.slice(-groupItemsCount);
-  const groupOfDuplicateItems = duplicateItems.slice(-groupItemsCount);
-
-  [...groupOfOriginalItems, ...groupOfDuplicateItems].forEach((item) => {
-    item.remove();
-  });
-};
-
-/**
  * Calculate sum of all items in slider,
  * or input items.
  * @param {HTMLUListElement} scrollingTextElement

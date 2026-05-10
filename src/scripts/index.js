@@ -16,5 +16,10 @@ function main() {
   new Slider(document.querySelector('.members-section__members-slider'), {
     navigation: document.querySelector('.members-section__navigation'),
     gap: 20,
+    slidePerView: 3,
+    pagination: document.querySelector(
+      '.members-section__navigation .slider-pagination',
+    ),
+    draggable: false,
   });
 }
