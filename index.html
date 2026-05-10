@@ -5,6 +5,151 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/src/styles/index.css" />
     <title>Клуб четырех коней</title>
+    <!-- Critical inline CSS for optimizing loading -->
+    <style>
+      @font-face {
+        font-family: Golostext;
+        src: url('/src/fonts/GolosText.woff2');
+        font-weight: 100 900;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: Merriweather;
+        src: url('/src/fonts/Merriweather.woff2');
+        font-weight: 100 900;
+        font-display: swap;
+      }
+    </style>
+    <style>
+      :root {
+        /* Font Sizes */
+        --font-3xl: 60px;
+        --font-2xl: 54px;
+        --font-xl: 36px;
+        --font-3l: 24px;
+        --font-2l: 22px;
+        --font-l: 20px;
+        --font-m: 18px;
+        --font-s: 16px;
+
+        /* Font Line Heights */
+        --line-l: 135%;
+        --line-m: 130%;
+        --line-s: 120%;
+        --line-2s: 110%;
+        --line-default: 100%;
+
+        /* Colors */
+        --color-primary: #f54932;
+        --color-tertiary: #3057a2;
+
+        --color-text-primary: #313131;
+        --color-text-secondary: var(--color-primary);
+        --color-text-tertiary: var(--color-tertiary);
+        --color-text-light: #313131b3;
+        --color-text-white: white;
+
+        --color-primary-background: white;
+        --color-secondary-background: #e9ded4;
+        --color-hero-background: #e9ded4;
+
+        --color-table-border: #d0d0d0;
+        --color-table-th: #313131b3;
+
+        --color-button-primary: #313131;
+        --color-button-tertiary: var(--color-tertiary);
+        --color-button-hover: #fbce51;
+
+        --header-active-background: #313131;
+
+        --header-height: calc(36px + 26px * 2);
+
+        --scrolling-text-gap: 12px;
+      }
+    </style>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        color: var(--color-text-primary);
+        line-height: var(--line-s);
+        font-family: Merriweather;
+        letter-spacing: 0px;
+        background-color: transparent;
+        outline: none;
+        border: none;
+      }
+
+      button,
+      p {
+        font-size: var(--font-l);
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-weight: 400;
+      }
+
+      h2,
+      h3 {
+        line-height: var(--line-l);
+      }
+
+      h1 {
+        font-size: var(--font-3xl);
+        line-height: var(--line-2s);
+      }
+
+      h2 {
+        font-size: var(--font-2xl);
+      }
+
+      h3 {
+        font-size: var(--font-xl);
+      }
+
+      img {
+        object-fit: cover;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      table :is(th, td) {
+        border: 2px solid var(--color-table-border);
+        padding: 16px;
+        text-align: left;
+        font-family: Golostext;
+        font-size: var(--font-l);
+      }
+
+      table tr:first-child :is(th, td) {
+        border-top: none;
+      }
+
+      table tr th {
+        border-left: none;
+        color: var(--color-table-th);
+        font-weight: 400;
+      }
+
+      table tr td {
+        border-right: none;
+        font-weight: 600;
+      }
+
+      table tr:last-child :is(th, td) {
+        border-bottom: none;
+      }
+
+      button {
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body>
     <header class="header">
@@ -151,18 +296,135 @@
               сенсационных результатов
             </li>
             <li class="step-grid__item">
-              Создание аэропорта «Большие Васюки» с регулярным отправлением
-              почтовых самолётов и дирижаблей во все концы света, включая
-              Лос-Анжелос и Мельбурн
+              <span class="step-grid__text">
+                Создание аэропорта «Большие Васюки» <br />с регулярным
+                отправлением почтовых самолётов и дирижаблей во все концы света,
+                включая Лос-Анжелос и Мельбурн
+              </span>
+              <img
+                src="/src/images/steps-plane.png"
+                alt=""
+                class="step-grid__image"
+              />
             </li>
           </ol>
         </div>
       </section>
       <section class="section members-section">
-        <div class="container"></div>
+        <div class="container">
+          <div class="members-section__heading">
+            <h2 class="members-section__title">Участники турнира</h2>
+            <div class="members-section__navigation slider-navigation">
+              <button class="slider-button navigate_left"></button>
+              <div class="slider-pagination">
+                <span class="slider-pagination__current">3</span>
+                <span class="slider-pagination__separator">/</span>
+                <span class="slider-pagination__total">6</span>
+              </div>
+              <button class="slider-button navigate_right"></button>
+            </div>
+          </div>
+          <div class="members-section__members-slider slider">
+            <ul class="members-slider__inner slider__inner">
+              <li class="members-slider__member-item slider__slide">
+                <img
+                  src="/src/images/member.svg"
+                  alt=""
+                  class="member-item__photo"
+                />
+                <h3 class="member-item__title">Хозе-Рауль Капабланка</h3>
+                <p class="member-item__subtitle">Чемпион мира по шахматам</p>
+                <a href="#" class="btn btn_tertiary member-item__button"
+                  >Подробнее</a
+                >
+              </li>
+              <li class="members-slider__member-item slider__slide">
+                <img
+                  src="/src/images/member.svg"
+                  alt=""
+                  class="member-item__photo"
+                />
+                <h3 class="member-item__title">Эммануил Ласкер</h3>
+                <p class="member-item__subtitle">Чемпион мира по шахматам</p>
+                <a href="#" class="btn btn_tertiary member-item__button"
+                  >Подробнее</a
+                >
+              </li>
+              <li class="members-slider__member-item slider__slide">
+                <img
+                  src="/src/images/member.svg"
+                  alt=""
+                  class="member-item__photo"
+                />
+                <h3 class="member-item__title">Александр Алехин</h3>
+                <p class="member-item__subtitle">Чемпион мира по шахматам</p>
+                <a href="#" class="btn btn_tertiary member-item__button"
+                  >Подробнее</a
+                >
+              </li>
+              <li class="members-slider__member-item slider__slide">
+                <img
+                  src="/src/images/member.svg"
+                  alt=""
+                  class="member-item__photo"
+                />
+                <h3 class="member-item__title">Арон Нимцович</h3>
+                <p class="member-item__subtitle">Чемпион мира по шахматам</p>
+                <a href="#" class="btn btn_tertiary member-item__button"
+                  >Подробнее</a
+                >
+              </li>
+              <li class="members-slider__member-item slider__slide">
+                <img
+                  src="/src/images/member.svg"
+                  alt=""
+                  class="member-item__photo"
+                />
+                <h3 class="member-item__title">Рихард Рети</h3>
+                <p class="member-item__subtitle">Чемпион мира по шахматам</p>
+                <a href="#" class="btn btn_tertiary member-item__button"
+                  >Подробнее</a
+                >
+              </li>
+              <li class="members-slider__member-item slider__slide">
+                <img
+                  src="/src/images/member.svg"
+                  alt=""
+                  class="member-item__photo"
+                />
+                <h3 class="member-item__title">Остап Бендер</h3>
+                <p class="member-item__subtitle">Гроссмейстер</p>
+                <a href="#" class="btn btn_tertiary member-item__button"
+                  >Подробнее</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <section class="section scrolling-text-section scrolling-text-wrapper">
+        <ul class="scrolling-text">
+          <li class="scrolling-text__item">
+            Дело помощи утопающим — дело рук самих утопающих!
+          </li>
+          <li class="scrolling-text__item">
+            Шахматы двигают вперед не только культуру, но и экономику!
+          </li>
+          <li class="scrolling-text__item">
+            Лед тронулся, господа присяжные заседатели!
+          </li>
+        </ul>
       </section>
     </main>
-    <footer class="footer"></footer>
+    <footer class="footer">
+      <div class="container">
+        <p class="footer__text">
+          Все персонажи, события и цитаты являются вымышленными и не принадлежат
+          создателям сайта. С подробностями можно познакомиться в главе XXXIV
+          романа Ильи Ильфа и Евгения Петрова «Двенадцать стульев».
+        </p>
+      </div>
+    </footer>
 
     <script src="/src/scripts/index.js" type="module"></script>
   </body>
