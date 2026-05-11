@@ -1,3 +1,5 @@
+import { onEvent } from './utils.js';
+
 document.addEventListener('DOMContentLoaded', main);
 
 function main() {
@@ -10,17 +12,6 @@ function main() {
       createScrollingText(item);
     });
   });
-
-  window.addEventListener(
-    'scroll',
-    async () => {
-      const header = document.querySelector('.header');
-      const { createHeader } = await import('./header.js');
-
-      createHeader(header);
-    },
-    { once: true },
-  );
 
   onObserved('.members-section__members-slider', async () => {
     const { Slider } = await import('./slider.js');
@@ -40,6 +31,11 @@ function main() {
     });
   });
 
+  addImagesAnimation();
+  createHeader();
+}
+
+function addImagesAnimation() {
   document
     .querySelectorAll(
       '.support-intro__image, .support-info__image, .step-grid__image',
@@ -70,4 +66,22 @@ function onObserved(selector, callback) {
   });
 
   document.querySelectorAll(selector).forEach((item) => observer.observe(item));
+}
+
+/**
+ * Initialize header. This
+ * function adding scroll handler and
+ * add set background to header when it need.
+ */
+export function createHeader() {
+  onEvent(() => {
+    const header = document.querySelector('.header');
+    const height = header.offsetHeight;
+
+    if (window.scrollY > height) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  }, 'scroll');
 }
