@@ -616,10 +616,8 @@
   opacity: 0;
 }
 
-@media screen and (min-width: 1280px) {
-  .only-mobile {
-    display: none;
-  }
+.only-mobile {
+  display: none;
 }
 
 /* Big Laptops*/
@@ -658,8 +656,43 @@
     padding: 0 20px;
   }
 
+  .hero-section {
+    padding-bottom: 329px;
+
+    background-position:
+      center,
+      right 30% bottom;
+    background-size: cover, 120%;
+  }
+
   .hero-section__hero-content {
     margin: 0 auto;
+    max-width: 100%;
+  }
+
+  .hero-content__hero-title {
+    max-width: 350px;
+    margin: 0 auto;
+    margin-bottom: 24px;
+  }
+
+  .hero-content__hero-subtitle {
+    max-width: 355px;
+    margin: auto;
+    margin-bottom: 32px;
+  }
+
+  .hero-content__hero-buttons {
+    gap: 16px;
+    flex-direction: column;
+  }
+
+  .hero-content__hero-buttons .btn br {
+    display: none;
+  }
+
+  .only-mobile {
+    display: unset;
   }
 }
 
