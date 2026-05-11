@@ -6,6 +6,18 @@
     <link rel="stylesheet" href="/src/styles/index.css" />
     <title>Клуб четырех коней</title>
     <!-- Critical inline CSS for optimizing loading -->
+    <link
+      rel="preload"
+      as="image"
+      href="/src/images/background-pattern.avif"
+      fetchpriority="high"
+    />
+    <link
+      rel="preload"
+      as="image"
+      href="/src/images/background-city.avif"
+      fetchpriority="high"
+    />
     <style>
       @font-face {
         font-family: Golostext;
@@ -218,6 +230,7 @@
                 class="support-intro__image"
                 src="/src/images/support-intro.avif"
                 alt=""
+                loading="lazy"
               />
             </div>
           </div>
@@ -227,6 +240,7 @@
                 class="support-info__image"
                 src="/src/images/support-info.avif"
                 alt=""
+                loading="lazy"
               />
             </div>
             <div class="support-info__right">
@@ -303,6 +317,7 @@
                 включая Лос-Анжелос и Мельбурн
               </span>
               <img
+                loading="lazy"
                 src="/src/images/steps-plane.avif"
                 alt=""
                 class="step-grid__image"
@@ -316,19 +331,26 @@
           <div class="members-section__heading">
             <h2 class="members-section__title">Участники турнира</h2>
             <div class="members-section__navigation slider-navigation">
-              <button class="slider-button navigate_left"></button>
+              <button
+                aria-label="Предыдущий участник"
+                class="slider-button navigate_left"
+              ></button>
               <div class="members-pagination slider-pagination">
                 <span class="slider-pagination__current">3</span>
                 <span class="slider-pagination__separator">/</span>
                 <span class="slider-pagination__total">6</span>
               </div>
-              <button class="slider-button navigate_right"></button>
+              <button
+                aria-label="Следующий участник"
+                class="slider-button navigate_right"
+              ></button>
             </div>
           </div>
           <div class="members-section__members-slider slider">
             <ul class="members-slider__inner slider__inner">
               <li class="members-slider__member-item slider__slide">
                 <img
+                  loading="lazy"
                   src="/src/images/member.svg"
                   alt=""
                   class="member-item__photo"
@@ -341,6 +363,7 @@
               </li>
               <li class="members-slider__member-item slider__slide">
                 <img
+                  loading="lazy"
                   src="/src/images/member.svg"
                   alt=""
                   class="member-item__photo"
@@ -353,6 +376,7 @@
               </li>
               <li class="members-slider__member-item slider__slide">
                 <img
+                  loading="lazy"
                   src="/src/images/member.svg"
                   alt=""
                   class="member-item__photo"
@@ -365,6 +389,7 @@
               </li>
               <li class="members-slider__member-item slider__slide">
                 <img
+                  loading="lazy"
                   src="/src/images/member.svg"
                   alt=""
                   class="member-item__photo"
@@ -377,6 +402,7 @@
               </li>
               <li class="members-slider__member-item slider__slide">
                 <img
+                  loading="lazy"
                   src="/src/images/member.svg"
                   alt=""
                   class="member-item__photo"
@@ -389,6 +415,7 @@
               </li>
               <li class="members-slider__member-item slider__slide">
                 <img
+                  loading="lazy"
                   src="/src/images/member.svg"
                   alt=""
                   class="member-item__photo"
