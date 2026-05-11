@@ -25,6 +25,9 @@ export class Slider {
     this.wrapper = element.querySelector('.slider__inner');
     this.slides = this.wrapper.querySelectorAll('.slider__slide');
 
+    this.nextButton = this.options.navigation.querySelector('.navigate_right');
+    this.prevButton = this.options.navigation.querySelector('.navigate_left');
+
     this.#configure();
   }
 
@@ -48,11 +51,8 @@ export class Slider {
   }
 
   #createNavigation() {
-    const nextButton = this.options.navigation.querySelector('.navigate_right');
-    const prevButton = this.options.navigation.querySelector('.navigate_left');
-
-    nextButton.addEventListener('click', () => this.nextSlide());
-    prevButton.addEventListener('click', () => this.prevSlide());
+    this.nextButton.addEventListener('click', () => this.nextSlide());
+    this.prevButton.addEventListener('click', () => this.prevSlide());
   }
 
   #updatePagination() {
@@ -79,6 +79,20 @@ export class Slider {
       this.currentSlide = 0;
     } else {
       this.currentSlide = slideNumber;
+    }
+
+    console.log(this.currentSlide, this.totalSlides);
+
+    if (this.currentSlide === 0) {
+      this.prevButton.setAttribute('disabled', true);
+    } else {
+      this.prevButton.removeAttribute('disabled');
+    }
+
+    if (this.currentSlide === this.totalSlides - 1) {
+      this.nextButton.setAttribute('disabled', true);
+    } else {
+      this.nextButton.removeAttribute('disabled');
     }
 
     this.#updatePagination();
@@ -144,19 +158,17 @@ export class Slider {
     let pointerStart = 0;
     let pointerOffset = 0;
     const multiplier = this.options.dragMultiplier || 1;
-    const threshold = 100; // Расстояние в px для переключения слайда
+    const threshold = 100;
 
     const onPointerMove = (e) => {
       pointerOffset = (pointerStart - e.clientX) * multiplier;
 
-      // Двигаем визуально, не меняя переменную currentTransform
       const moveX = this.currentTransform - pointerOffset;
       this.wrapper.style.transform = `translateX(${moveX}px)`;
-      this.wrapper.style.transition = 'none'; // Мгновенный отклик
+      this.wrapper.style.transition = 'none';
     };
 
     this.element.addEventListener('pointerdown', (e) => {
-      // Предотвращаем выделение текста и захватываем указатель
       this.element.setPointerCapture(e.pointerId);
       pointerStart = e.clientX;
 
@@ -168,16 +180,13 @@ export class Slider {
       this.element.removeEventListener('pointermove', onPointerMove);
       this.element.classList.remove('is_grabbed');
 
-      // Возвращаем плавность
       this.wrapper.style.transition = 'transform 0.3s ease';
 
-      // Решаем, переключить слайд или зафиксировать текущий
       if (pointerOffset > threshold) {
         this.nextSlide();
       } else if (pointerOffset < -threshold) {
         this.prevSlide();
       } else {
-        // Если свайп маленький — возвращаем слайд на место
         this.changeSlide(this.currentSlide);
       }
 
