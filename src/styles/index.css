@@ -56,8 +56,8 @@
 .hero-section {
   padding-bottom: 132px;
   background:
-    url('/src/images/background-pattern.png') center,
-    url('/src/images/background-city.png') bottom no-repeat,
+    url('/src/images/background-pattern.avif') center,
+    url('/src/images/background-city.avif') bottom no-repeat,
     var(--color-hero-background);
   background-size: cover, contain;
   background-blend-mode: color-burn, normal;
@@ -261,7 +261,7 @@
 }
 
 .step-grid__item {
-  background: url('/src/images/steps-background.png');
+  background: url('/src/images/steps-background.avif');
   background-blend-mode: color-burn;
   background-size: cover;
   padding: 20px;
