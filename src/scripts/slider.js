@@ -9,44 +9,76 @@ export class Slider {
    *  gap: number,
    *  slidePerView: number,
    *  draggable: boolean,
-   *  dragMultiplier: number
+   *  dragMultiplier: number,
+   *  loop: boolean,
+   *  auto: {
+   *    delay: number
+   *  }
    * }} options
    */
-  constructor(element, options) {
+  constructor(
+    element,
+    {
+      navigation,
+      pagination,
+      gap,
+      slidePerView = 1,
+      dragMultiplier = 1,
+      draggable,
+      loop = false,
+      auto,
+    },
+  ) {
     this.element = element;
-    this.options = options;
+    this.navigation = navigation;
+    this.wrapper = this.element.querySelector('.slider__inner');
+
+    const styles = getComputedStyle(this.wrapper);
+    const computedGap = parseFloat(styles.gap) || 0;
+
+    this.slides = this.wrapper.querySelectorAll('.slider__slide');
+    this.nextButton = this.navigation.querySelector('.navigate_right');
+    this.prevButton = this.navigation.querySelector('.navigate_left');
+
+    this.pagination = pagination;
+    this.gap = gap || computedGap;
+    this.slidePerView = slidePerView;
+    this.dragMultiplier = dragMultiplier;
+    this.draggable = draggable;
+    this.loop = loop;
+    this.auto = auto;
 
     this.currentSlide = 0;
     this.totalSlides = Math.floor(
-      element.querySelectorAll('.slider__slide').length / options.slidePerView,
+      element.querySelectorAll('.slider__slide').length / this.slidePerView,
     );
     this.currentTransform = 0;
 
-    this.wrapper = element.querySelector('.slider__inner');
-    this.slides = this.wrapper.querySelectorAll('.slider__slide');
-
-    this.nextButton = this.options.navigation.querySelector('.navigate_right');
-    this.prevButton = this.options.navigation.querySelector('.navigate_left');
-
-    this.#configure();
+    this.#init();
   }
 
-  #configure() {
+  #setAutoSlider() {
+    setInterval(() => {
+      this.nextSlide();
+    }, this.auto.delay);
+  }
+
+  #init() {
     this.#setChildrenWidth();
     this.#updatePagination();
     this.#setDragEvents();
     this.#setNoDraggableForImgs();
 
-    if (this.options.navigation) {
-      this.#createNavigation();
-    }
+    if (this.navigation) this.#createNavigation();
+
+    if (this.auto?.delay) this.#setAutoSlider();
   }
 
   #setNoDraggableForImgs() {
     const imgs = this.wrapper.querySelectorAll('img');
 
     imgs.forEach((img) =>
-      img.setAttribute('draggable', this.options.draggable ?? false),
+      img.setAttribute('draggable', this.draggable ?? false),
     );
   }
 
@@ -56,11 +88,11 @@ export class Slider {
   }
 
   #updatePagination() {
-    if (!this.options.pagination) return;
-    const currentCounter = this.options.pagination.querySelector(
+    if (!this.pagination) return;
+    const currentCounter = this.pagination.querySelector(
       '.slider-pagination__current',
     );
-    const totalCounter = this.options.pagination.querySelector(
+    const totalCounter = this.pagination.querySelector(
       '.slider-pagination__total',
     );
 
@@ -69,9 +101,17 @@ export class Slider {
   }
 
   /**
-   * Go to slide
-   * @param {number} slideNumber
+   * @param {number} conditionNumber
+   * @param {HTMLElement} button
    */
+  #setButtonState = (conditionNumber, button) => {
+    if (this.currentSlide === conditionNumber) {
+      button.setAttribute('disabled', true);
+    } else {
+      button.removeAttribute('disabled');
+    }
+  };
+
   changeSlide(slideNumber) {
     if (slideNumber > this.totalSlides - 1) {
       this.currentSlide = this.totalSlides - 1;
@@ -81,26 +121,14 @@ export class Slider {
       this.currentSlide = slideNumber;
     }
 
-    console.log(this.currentSlide, this.totalSlides);
-
-    if (this.currentSlide === 0) {
-      this.prevButton.setAttribute('disabled', true);
-    } else {
-      this.prevButton.removeAttribute('disabled');
-    }
-
-    if (this.currentSlide === this.totalSlides - 1) {
-      this.nextButton.setAttribute('disabled', true);
-    } else {
-      this.nextButton.removeAttribute('disabled');
-    }
+    this.#setButtonState(0, this.prevButton);
+    this.#setButtonState(this.totalSlides - 1, this.nextButton);
 
     this.#updatePagination();
     this.#updateVisibleClasses();
 
     this.currentTransform =
-      -this.currentSlide *
-      (this.options.slidePerView * (this.slideWidth + this.options.gap));
+      -this.currentSlide * (this.slidePerView * (this.slideWidth + this.gap));
 
     this.wrapper.style.transform = `translateX(${this.currentTransform}px)`;
   }
@@ -110,37 +138,25 @@ export class Slider {
 
     const visibleSlides = slides.slice(
       this.currentSlide,
-      this.currentSlide + this.options.slidePerView,
+      this.currentSlide + this.slidePerView,
     );
-
-    console.log(this.currentSlide);
 
     this.slides.forEach((item) => item.classList.remove('visible'));
     visibleSlides.forEach((item) => item.classList.add('visible'));
   }
 
-  /**
-   * Go to next slide
-   */
   nextSlide() {
     this.changeSlide(this.currentSlide + 1);
   }
 
-  /**
-   * Go to prev slide
-   */
   prevSlide() {
     this.changeSlide(this.currentSlide - 1);
   }
 
-  /**
-   * Set equal width for children
-   */
   #setChildrenWidth() {
     onEvent(() => {
       const wrapperWidth = this.element.offsetWidth;
-      this.slideWidth =
-        wrapperWidth / this.options.slidePerView - this.options.gap;
+      this.slideWidth = wrapperWidth / this.slidePerView - this.gap;
 
       const maxHeight = Math.max(
         Array.from(this.slides).map((item) => item.offsetHeight),
@@ -157,7 +173,7 @@ export class Slider {
   #setDragEvents() {
     let pointerStart = 0;
     let pointerOffset = 0;
-    const multiplier = this.options.dragMultiplier || 1;
+    const multiplier = this.dragMultiplier || 1;
     const threshold = 100;
 
     const onPointerMove = (e) => {

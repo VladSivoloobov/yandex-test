@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', main);
 
 function main() {
-  lazyLoad('.scrolling-text', async () => {
+  onObserved('.scrolling-text', async () => {
     const { createScrollingText } = await import('./scrolling-text.js');
 
     const scrollingTextElements = document.querySelectorAll('.scrolling-text');
@@ -22,7 +22,7 @@ function main() {
     { once: true },
   );
 
-  lazyLoad('.members-section__members-slider', async () => {
+  onObserved('.members-section__members-slider', async () => {
     const { Slider } = await import('./slider.js');
 
     new Slider(document.querySelector('.members-section__members-slider'), {
@@ -33,15 +33,37 @@ function main() {
         '.members-section__navigation .slider-pagination',
       ),
       draggable: false,
+      loop: true,
+      auto: {
+        delay: 5000,
+      },
     });
   });
+
+  document
+    .querySelectorAll(
+      '.support-intro__image, .support-info__image, .step-grid__image',
+    )
+    .forEach((item) => {
+      item.classList.add('visible_none');
+
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          item.classList.add('opacity-animate');
+
+          observer.disconnect();
+        }
+      });
+
+      observer.observe(item);
+    });
 }
 
-function lazyLoad(selector, callback) {
+function onObserved(selector, callback) {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        callback();
+        callback(entry.target);
         observer.disconnect();
       }
     });
