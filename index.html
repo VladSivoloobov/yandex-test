@@ -33,54 +33,6 @@
       }
     </style>
     <style>
-      :root {
-        /* Font Sizes */
-        --font-3xl: 60px;
-        --font-2xl: 54px;
-        --font-xl: 36px;
-        --font-3l: 24px;
-        --font-2l: 22px;
-        --font-l: 20px;
-        --font-m: 18px;
-        --font-s: 16px;
-
-        /* Font Line Heights */
-        --line-l: 135%;
-        --line-m: 130%;
-        --line-s: 120%;
-        --line-2s: 110%;
-        --line-default: 100%;
-
-        /* Colors */
-        --color-primary: #f54932;
-        --color-tertiary: #3057a2;
-
-        --color-text-primary: #313131;
-        --color-text-secondary: var(--color-primary);
-        --color-text-tertiary: var(--color-tertiary);
-        --color-text-light: #313131b3;
-        --color-text-white: white;
-
-        --color-primary-background: white;
-        --color-secondary-background: #e9ded4;
-        --color-hero-background: #e9ded4;
-
-        --color-table-border: #d0d0d0;
-        --color-table-th: #313131b3;
-
-        --color-button-primary: #313131;
-        --color-button-tertiary: var(--color-tertiary);
-        --color-button-hover: #fbce51;
-        --color-button-disabled: #d6d6d6;
-
-        --header-active-background: #313131;
-
-        --header-height: calc(36px + 26px * 2);
-
-        --scrolling-text-gap: 12px;
-      }
-    </style>
-    <style>
       * {
         margin: 0;
         padding: 0;
@@ -183,7 +135,10 @@
             <h1 class="hero-content__hero-title">
               Превратите <br />
               уездный город
-              <span class="hero-title__center"> в столицу земного шара </span>
+              <span class="hero-title__center">
+                в столицу земного<br class="only-mobile" />
+                шара
+              </span>
             </h1>
             <p class="hero-content__hero-subtitle">
               Оплатите взнос на телеграммы для организации Международного
