@@ -90,7 +90,7 @@ function fillScrollingTextByWindowSize(scrollingTextElement, groupItemsCount) {
   );
   if (groupWidth === 0) return;
 
-  const copiesNeeded = Math.ceil(wrapperWidth / groupWidth) + 1;
+  const copiesNeeded = Math.ceil(wrapperWidth / groupWidth);
 
   const fragment = document.createDocumentFragment();
   for (let i = 0; i < copiesNeeded; i++) {
