@@ -807,18 +807,13 @@
   }
 
   .steps-section__step-grid {
-    display: grid;
+    display: flex;
     position: relative;
     padding-top: 148px;
     row-gap: 0;
-    grid-auto-columns: 100%;
-    grid-template-columns: 100%;
-    grid-auto-flow: column;
-  }
-
-  .steps-section .steps-section__step-grid .step-grid__item {
-    grid-column: auto;
-    grid-row: auto;
+    flex-direction: column;
+    flex-wrap: wrap;
+    height: calc(148px + 300px);
   }
 
   .steps-section {
@@ -827,18 +822,27 @@
   }
 
   .step-grid__item {
-    grid-column: 1;
-    grid-row: 2;
-  }
-
-  .step-grid__item {
-    flex: 0 0 auto;
+    flex: 0 0 100%;
     width: 100%;
-    padding-top: 62px;
-    padding-bottom: 34px;
     padding-left: 20px;
     padding-right: 24px;
     position: static;
+    height: auto;
+    padding-top: 62px;
+  }
+
+  .step-grid__item[data-group] {
+    flex: 0 1 auto;
+    padding-bottom: 28px;
+  }
+
+  .step-grid__item.group_included {
+    padding-top: 0;
+  }
+
+  .step-grid__item.group_included.group_end {
+    flex-grow: 1;
+    padding-bottom: 34px;
   }
 
   .step-grid__image {
