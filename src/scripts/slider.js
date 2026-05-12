@@ -1,5 +1,3 @@
-import { onEvent } from './utils.js';
-
 export class Slider {
   /**
    * @param {HTMLElement} element
@@ -14,8 +12,8 @@ export class Slider {
    *  auto: {
    *    delay: number
    *  }
-   *  onChange: () => void,
-   *  breakpoints: Record<string, {ignore: boolean}>
+   *  onChange: (slider: Slider) => void,
+   *  breakpoints: Record<string, { ignore?: boolean, slidePerView?: number, gap?: number }>
    * }} options
    */
   constructor(
@@ -35,111 +33,263 @@ export class Slider {
   ) {
     this.element = element;
     this.navigation = navigation;
-    this.wrapper = this.element.querySelector('.slider__inner');
-
-    const styles = getComputedStyle(this.wrapper);
-    const computedGap = parseFloat(styles.gap) || 0;
-
-    this.slides = this.wrapper.querySelectorAll('.slider__slide');
-
-    this.#initNavigation();
-
     this.pagination = pagination;
-    this.gap = gap || computedGap;
+    this.gap = gap ?? 0;
+    this.defaultGap = this.gap;
+    this.defaultSlidePerView = slidePerView;
     this.slidePerView = slidePerView;
     this.dragMultiplier = dragMultiplier;
     this.draggable = draggable;
     this.loop = loop;
     this.auto = auto;
-
     this.onChange = onChange;
+    this.breakpoints = breakpoints;
 
-    this.groupIncludes = Array.from(
-      this.element.querySelectorAll('.group_include'),
-    );
+    this.wrapper = null;
+    this.slides = [];
+    this.dots = [];
+    this.nextButton = null;
+    this.prevButton = null;
 
     this.currentSlide = 0;
-    this.totalSlides = Math.floor(
-      element.querySelectorAll('.slider__slide:not(.group_included)').length /
-        this.slidePerView,
-    );
     this.currentTransform = 0;
+    this.slideWidth = 0;
+    this.totalSlides = 0;
 
-    this.breakpoints = breakpoints;
+    this.initialized = false;
+    this.autoTimer = null;
+    this.mediaQueries = [];
+    this.currentBreakpointKey = null;
+
+    this.onResize = this.#handleResize.bind(this);
+    this.onPointerMove = this.#handlePointerMove.bind(this);
+    this.onPointerDown = this.#handlePointerDown.bind(this);
+    this.onPointerUp = this.#handlePointerUp.bind(this);
+    this.onNextClick = this.nextSlide.bind(this);
+    this.onPrevClick = this.prevSlide.bind(this);
+
+    this.#initNavigation();
 
     if (this.breakpoints) {
       this.#createMediaQueries();
     } else {
-      this.#init();
+      this.#initialize();
     }
+  }
+
+  #getActiveBreakpoint() {
+    return this.mediaQueries.find(({ media }) => media.matches) || null;
+  }
+
+  #applyBreakpoint() {
+    const activeBreakpoint = this.#getActiveBreakpoint();
+    const breakpoint = activeBreakpoint?.config || null;
+
+    if (!breakpoint) {
+      if (!this.initialized) {
+        this.slidePerView = this.defaultSlidePerView;
+        this.gap = this.defaultGap;
+        this.currentBreakpointKey = null;
+        this.#initialize();
+      } else if (this.currentBreakpointKey !== null) {
+        this.slidePerView = this.defaultSlidePerView;
+        this.gap = this.defaultGap;
+        this.currentBreakpointKey = null;
+        this.#destroy();
+        this.#initialize();
+      }
+      return;
+    }
+
+    if (breakpoint.ignore) {
+      this.#destroy();
+      this.currentBreakpointKey = activeBreakpoint.query;
+      return;
+    }
+
+    const requestedSlidePerView =
+      breakpoint.slidePerView ?? this.defaultSlidePerView;
+    const requestedGap = breakpoint.gap ?? this.gap;
+    const breakpointKey = activeBreakpoint.query;
+
+    const needsReinit =
+      !this.initialized ||
+      this.currentBreakpointKey !== breakpointKey ||
+      this.slidePerView !== requestedSlidePerView ||
+      this.gap !== requestedGap;
+
+    if (!needsReinit) {
+      return;
+    }
+
+    this.slidePerView = requestedSlidePerView;
+    this.gap = requestedGap;
+    this.currentBreakpointKey = breakpointKey;
+
+    if (this.initialized) {
+      this.#destroy();
+    }
+
+    this.#initialize();
   }
 
   #createMediaQueries() {
-    for (const key in this.breakpoints) {
-      const breakpoint = this.breakpoints[key];
-      const media = window.matchMedia(key);
+    Object.entries(this.breakpoints).forEach(([query, config]) => {
+      const media = window.matchMedia(query);
+      const listener = () => this.#applyBreakpoint();
 
-      if (media.matches && !breakpoint.ignore) {
-        this.#init();
-      }
+      media.addEventListener('change', listener);
+      this.mediaQueries.push({ media, config, query });
+    });
 
-      media.addEventListener('change', (e) => {
-        if (e.matches) {
-          if (breakpoint.ignore) {
-            this.#destroy();
-          }
-
-          this.#init();
-        }
-      });
-    }
+    this.#applyBreakpoint();
   }
 
   #destroy() {
-    console.log(this.element.parentElement);
-    this.element.parentElement.replaceChild(this.dublicate, this.element);
-    this.element = this.dublicate;
+    if (!this.initialized) {
+      return;
+    }
+
+    window.removeEventListener('resize', this.onResize);
+    this.element.removeEventListener('pointerdown', this.onPointerDown);
+    this.element.removeEventListener('pointerup', this.onPointerUp);
+    this.element.removeEventListener('pointercancel', this.onPointerUp);
+
+    if (this.nextButton) {
+      this.nextButton.removeEventListener('click', this.onNextClick);
+    }
+
+    if (this.prevButton) {
+      this.prevButton.removeEventListener('click', this.onPrevClick);
+    }
+
+    if (this.autoTimer) {
+      window.clearInterval(this.autoTimer);
+      this.autoTimer = null;
+    }
+
+    if (this.wrapper) {
+      this.wrapper.style.transform = '';
+      this.wrapper.style.transition = '';
+    }
+
+    this.slides.forEach((slide) => {
+      slide.style.width = '';
+      slide.classList.remove('visible');
+    });
+
+    if (this.pagination) {
+      const sliderDotsWrapper = this.pagination.querySelector(
+        '.slider-pagination__dots',
+      );
+
+      if (sliderDotsWrapper) {
+        sliderDotsWrapper.innerHTML = '';
+      }
+
+      const currentCounter = this.pagination.querySelector(
+        '.slider-pagination__current',
+      );
+      const totalCounter = this.pagination.querySelector(
+        '.slider-pagination__total',
+      );
+
+      if (currentCounter) {
+        currentCounter.textContent = '';
+      }
+
+      if (totalCounter) {
+        totalCounter.textContent = '';
+      }
+    }
+
+    this.element.classList.remove('is_grabbed');
+    this.currentSlide = 0;
+    this.currentTransform = 0;
+    this.initialized = false;
   }
 
   #initNavigation() {
-    if (!this.navigation) return;
+    if (!this.navigation) {
+      return;
+    }
+
     this.nextButton = this.navigation.querySelector('.navigate_right');
     this.prevButton = this.navigation.querySelector('.navigate_left');
   }
 
-  #setAutoSlider() {
-    setInterval(() => {
+  #startAutoSlide() {
+    if (!this.auto?.delay) {
+      return;
+    }
+
+    this.autoTimer = window.setInterval(() => {
       this.nextSlide();
     }, this.auto.delay);
   }
 
-  #init() {
-    this.dublicate = this.element.cloneNode(true);
-    this.#setChildrenWidth();
+  #initialize() {
+    if (this.initialized) {
+      return;
+    }
+
+    this.wrapper = this.element.querySelector('.slider__inner');
+    this.slides = this.wrapper?.querySelectorAll('.slider__slide') ?? [];
+    this.groupIncludes = Array.from(
+      this.element.querySelectorAll('.group_include'),
+    );
+
+    this.totalSlides = Math.max(
+      1,
+      Math.ceil(
+        this.element.querySelectorAll('.slider__slide:not(.group_included)')
+          .length / this.slidePerView,
+      ),
+    );
+
+    this.#initializeSlideWidths();
+    this.#attachDragEvents();
+    this.#disableImageDrag();
+    this.#createPaginationDots();
     this.#updatePagination();
-    this.#setDragEvents();
-    this.#setNoDraggableForImgs();
 
-    if (this.navigation) this.#createNavigation();
+    if (this.navigation) {
+      this.#createNavigation();
+    }
 
-    if (this.auto?.delay) this.#setAutoSlider();
+    if (this.auto?.delay) {
+      this.#startAutoSlide();
+    }
+
+    this.initialized = true;
   }
 
-  #setNoDraggableForImgs() {
+  #disableImageDrag() {
+    if (!this.wrapper) {
+      return;
+    }
+
     const imgs = this.wrapper.querySelectorAll('img');
 
-    imgs.forEach((img) =>
-      img.setAttribute('draggable', this.draggable ?? false),
-    );
+    imgs.forEach((img) => {
+      img.setAttribute('draggable', this.draggable ?? false);
+    });
   }
 
   #createNavigation() {
-    this.nextButton.addEventListener('click', () => this.nextSlide());
-    this.prevButton.addEventListener('click', () => this.prevSlide());
+    if (!this.nextButton || !this.prevButton) {
+      return;
+    }
+
+    this.nextButton.addEventListener('click', this.onNextClick);
+    this.prevButton.addEventListener('click', this.onPrevClick);
   }
 
   #updatePagination() {
-    if (!this.pagination) return;
+    if (!this.pagination) {
+      return;
+    }
+
     const currentCounter = this.pagination.querySelector(
       '.slider-pagination__current',
     );
@@ -147,36 +297,80 @@ export class Slider {
       '.slider-pagination__total',
     );
 
-    currentCounter.textContent = this.currentSlide + 1;
-    totalCounter.textContent = this.totalSlides;
+    this.#updateDots();
+
+    if (currentCounter) {
+      currentCounter.textContent = String(this.currentSlide + 1);
+    }
+
+    if (totalCounter) {
+      totalCounter.textContent = String(this.totalSlides);
+    }
+  }
+
+  #updateDots() {
+    if (!this.dots?.length) {
+      return;
+    }
+
+    this.dots.forEach((item) => item.classList.remove('active'));
+    const dot = this.dots[this.currentSlide];
+
+    if (dot) {
+      dot.classList.add('active');
+    }
+  }
+
+  #createPaginationDots() {
+    if (!this.pagination) {
+      return;
+    }
+
+    const sliderDotsWrapper = this.pagination.querySelector(
+      '.slider-pagination__dots',
+    );
+
+    if (!sliderDotsWrapper) {
+      return;
+    }
+
+    sliderDotsWrapper.innerHTML = '';
+    this.dots = Array.from({ length: this.totalSlides }, () => {
+      const element = document.createElement('div');
+      element.classList.add('slider-pagination__dot');
+      return element;
+    });
+
+    sliderDotsWrapper.append(...this.dots);
   }
 
   /**
    * @param {number} conditionNumber
    * @param {HTMLElement} button
    */
-  #setButtonState = (conditionNumber, button) => {
-    if (!this.navigation) return;
+  #updateButtonState(conditionNumber, button) {
+    if (!this.navigation || !button) {
+      return;
+    }
 
     if (this.currentSlide === conditionNumber) {
-      button.setAttribute('disabled', true);
+      button.setAttribute('disabled', 'true');
     } else {
       button.removeAttribute('disabled');
     }
-  };
+  }
 
   changeSlide(slideNumber) {
     if (slideNumber > this.totalSlides - 1) {
-      this.currentSlide = this.totalSlides - 1;
+      this.currentSlide = this.loop ? 0 : this.totalSlides - 1;
     } else if (slideNumber < 0) {
-      this.currentSlide = 0;
+      this.currentSlide = this.loop ? this.totalSlides - 1 : 0;
     } else {
       this.currentSlide = slideNumber;
     }
 
-    this.#setButtonState(0, this.prevButton);
-    this.#setButtonState(this.totalSlides - 1, this.nextButton);
-
+    this.#updateButtonState(0, this.prevButton);
+    this.#updateButtonState(this.totalSlides - 1, this.nextButton);
     this.#updatePagination();
     this.#updateVisibleClasses();
 
@@ -187,12 +381,17 @@ export class Slider {
       this.onChange(this);
     }
 
-    this.wrapper.style.transform = `translateX(${this.currentTransform}px)`;
+    if (this.wrapper) {
+      this.wrapper.style.transform = `translateX(${this.currentTransform}px)`;
+    }
   }
 
   #updateVisibleClasses() {
-    const slides = Array.from(this.slides);
+    if (!this.slides.length) {
+      return;
+    }
 
+    const slides = Array.from(this.slides);
     const visibleSlides = slides.slice(
       this.currentSlide,
       this.currentSlide + this.slidePerView,
@@ -210,60 +409,70 @@ export class Slider {
     this.changeSlide(this.currentSlide - 1);
   }
 
-  #setChildrenWidth() {
-    onEvent(() => {
-      const wrapperWidth = this.element.offsetWidth;
-      this.slideWidth = wrapperWidth / this.slidePerView - this.gap;
+  #handleResize() {
+    if (!this.wrapper || !this.slides.length) {
+      return;
+    }
 
-      const maxHeight = Math.max(
-        Array.from(this.slides).map((item) => item.offsetHeight),
-      );
+    const wrapperWidth = this.element.offsetWidth;
+    this.slideWidth = wrapperWidth / this.slidePerView;
 
-      for (const slide of this.slides) {
-        slide.style.width = `${this.slideWidth}px`;
-      }
+    for (const slide of this.slides) {
+      slide.style.width = `${this.slideWidth}px`;
+    }
 
-      this.changeSlide(this.currentSlide);
-    }, 'resize');
+    this.changeSlide(this.currentSlide);
   }
 
-  #setDragEvents() {
-    let pointerStart = 0;
-    let pointerOffset = 0;
-    const multiplier = this.dragMultiplier || 1;
-    const threshold = 100;
+  #initializeSlideWidths() {
+    this.#handleResize();
+    window.addEventListener('resize', this.onResize);
+  }
 
-    const onPointerMove = (e) => {
-      pointerOffset = (pointerStart - e.clientX) * multiplier;
+  #handlePointerMove(event) {
+    const pointerOffset =
+      (this.pointerStart - event.clientX) * (this.dragMultiplier || 1);
 
-      const moveX = this.currentTransform - pointerOffset;
+    const moveX = this.currentTransform - pointerOffset;
+    if (this.wrapper) {
       this.wrapper.style.transform = `translateX(${moveX}px)`;
       this.wrapper.style.transition = 'none';
-    };
+    }
 
-    this.element.addEventListener('pointerdown', (e) => {
-      this.element.setPointerCapture(e.pointerId);
-      pointerStart = e.clientX;
+    this.pointerOffset = pointerOffset;
+  }
 
-      this.element.classList.add('is_grabbed');
-      this.element.addEventListener('pointermove', onPointerMove);
-    });
+  #handlePointerDown(event) {
+    this.element.setPointerCapture(event.pointerId);
+    this.pointerStart = event.clientX;
+    this.pointerOffset = 0;
 
-    this.element.addEventListener('pointerup', (e) => {
-      this.element.removeEventListener('pointermove', onPointerMove);
-      this.element.classList.remove('is_grabbed');
+    this.element.classList.add('is_grabbed');
+    this.element.addEventListener('pointermove', this.onPointerMove);
+  }
 
+  #handlePointerUp() {
+    this.element.removeEventListener('pointermove', this.onPointerMove);
+    this.element.classList.remove('is_grabbed');
+
+    if (this.wrapper) {
       this.wrapper.style.transition = 'transform 0.3s ease';
+    }
 
-      if (pointerOffset > threshold) {
-        this.nextSlide();
-      } else if (pointerOffset < -threshold) {
-        this.prevSlide();
-      } else {
-        this.changeSlide(this.currentSlide);
-      }
+    if (this.pointerOffset > 100) {
+      this.nextSlide();
+    } else if (this.pointerOffset < -100) {
+      this.prevSlide();
+    } else {
+      this.changeSlide(this.currentSlide);
+    }
 
-      pointerOffset = 0;
-    });
+    this.pointerOffset = 0;
+  }
+
+  #attachDragEvents() {
+    this.element.addEventListener('pointerdown', this.onPointerDown);
+    this.element.addEventListener('pointerup', this.onPointerUp);
+    this.element.addEventListener('pointercancel', this.onPointerUp);
   }
 }

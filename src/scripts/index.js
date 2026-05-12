@@ -28,6 +28,11 @@ function main() {
       auto: {
         delay: 5000,
       },
+      breakpoints: {
+        '(max-width: 991px)': {
+          slidePerView: 1,
+        },
+      },
     });
 
     const stepsSlider = new Slider(
@@ -51,6 +56,8 @@ function main() {
             ignore: true,
           },
         },
+        pagination: document.querySelector('.steps-section__pagination'),
+        navigation: document.querySelector('.steps-section__navigation'),
       },
     );
   });
@@ -92,11 +99,6 @@ function onObserved(selector, callback) {
   document.querySelectorAll(selector).forEach((item) => observer.observe(item));
 }
 
-/**
- * Initialize header. This
- * function adding scroll handler and
- * add set background to header when it need.
- */
 export function createHeader() {
   onEvent(() => {
     const header = document.querySelector('.header');
