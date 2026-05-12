@@ -13,7 +13,7 @@ function main() {
     });
   });
 
-  onObserved('.members-section__members-slider', async () => {
+  onObserved('.slider', async () => {
     const { Slider } = await import('./slider.js');
 
     new Slider(document.querySelector('.members-section__members-slider'), {
@@ -29,6 +29,30 @@ function main() {
         delay: 5000,
       },
     });
+
+    const stepsSlider = new Slider(
+      document.querySelector('.steps-section__slider'),
+      {
+        navigation: null,
+        gap: 20,
+        slidePerView: 1,
+        pagination: null,
+        draggable: false,
+        loop: false,
+        onChange: (slider) => {
+          const planeImage = document.querySelector('.step-grid__image');
+          planeImage.style.transform = `translateX(${-slider.currentTransform}px)`;
+        },
+        breakpoints: {
+          '(max-width: 991.98px)': {
+            ignore: false,
+          },
+          '(min-width: 992px)': {
+            ignore: true,
+          },
+        },
+      },
+    );
   });
 
   addImagesAnimation();

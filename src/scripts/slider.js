@@ -14,6 +14,8 @@ export class Slider {
    *  auto: {
    *    delay: number
    *  }
+   *  onChange: () => void,
+   *  breakpoints: Record<string, {ignore: boolean}>
    * }} options
    */
   constructor(
@@ -27,6 +29,8 @@ export class Slider {
       draggable,
       loop = false,
       auto,
+      onChange,
+      breakpoints,
     },
   ) {
     this.element = element;
@@ -37,8 +41,8 @@ export class Slider {
     const computedGap = parseFloat(styles.gap) || 0;
 
     this.slides = this.wrapper.querySelectorAll('.slider__slide');
-    this.nextButton = this.navigation.querySelector('.navigate_right');
-    this.prevButton = this.navigation.querySelector('.navigate_left');
+
+    this.#initNavigation();
 
     this.pagination = pagination;
     this.gap = gap || computedGap;
@@ -48,13 +52,59 @@ export class Slider {
     this.loop = loop;
     this.auto = auto;
 
+    this.onChange = onChange;
+
+    this.groupIncludes = Array.from(
+      this.element.querySelectorAll('.group_include'),
+    );
+
     this.currentSlide = 0;
     this.totalSlides = Math.floor(
-      element.querySelectorAll('.slider__slide').length / this.slidePerView,
+      element.querySelectorAll('.slider__slide:not(.group_included)').length /
+        this.slidePerView,
     );
     this.currentTransform = 0;
 
-    this.#init();
+    this.breakpoints = breakpoints;
+
+    if (this.breakpoints) {
+      this.#createMediaQueries();
+    } else {
+      this.#init();
+    }
+  }
+
+  #createMediaQueries() {
+    for (const key in this.breakpoints) {
+      const breakpoint = this.breakpoints[key];
+      const media = window.matchMedia(key);
+
+      if (media.matches && !breakpoint.ignore) {
+        this.#init();
+      }
+
+      media.addEventListener('change', (e) => {
+        if (e.matches) {
+          if (breakpoint.ignore) {
+            this.#destroy();
+          }
+
+          this.#init();
+        }
+      });
+    }
+  }
+
+  #destroy() {
+    console.log(this.element.parentElement);
+    this.element.parentElement.replaceChild(this.dublicate, this.element);
+    this.element = this.dublicate;
+  }
+
+  #initNavigation() {
+    if (!this.navigation) return;
+    this.nextButton = this.navigation.querySelector('.navigate_right');
+    this.prevButton = this.navigation.querySelector('.navigate_left');
   }
 
   #setAutoSlider() {
@@ -64,6 +114,7 @@ export class Slider {
   }
 
   #init() {
+    this.dublicate = this.element.cloneNode(true);
     this.#setChildrenWidth();
     this.#updatePagination();
     this.#setDragEvents();
@@ -105,6 +156,8 @@ export class Slider {
    * @param {HTMLElement} button
    */
   #setButtonState = (conditionNumber, button) => {
+    if (!this.navigation) return;
+
     if (this.currentSlide === conditionNumber) {
       button.setAttribute('disabled', true);
     } else {
@@ -129,6 +182,10 @@ export class Slider {
 
     this.currentTransform =
       -this.currentSlide * (this.slidePerView * (this.slideWidth + this.gap));
+
+    if (this.onChange) {
+      this.onChange(this);
+    }
 
     this.wrapper.style.transform = `translateX(${this.currentTransform}px)`;
   }

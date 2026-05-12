@@ -433,7 +433,7 @@
   transform: rotate(180deg);
 }
 
-.slider {
+.members-section__members-slider {
   overflow-x: hidden;
   width: 100%;
   cursor: grab;
@@ -444,7 +444,7 @@
   cursor: grabbing;
 }
 
-.slider__inner {
+.members-slider__inner {
   display: flex;
 }
 
@@ -806,9 +806,13 @@
     max-width: 100%;
   }
 
+  .steps-section__slider {
+    position: relative;
+  }
+
   .steps-section__step-grid {
     display: flex;
-    position: relative;
+    position: static;
     padding-top: 148px;
     row-gap: 0;
     flex-direction: column;
@@ -854,6 +858,12 @@
     bottom: auto;
     aspect-ratio: 335 / 182;
     margin: auto;
+    transition: transform 0.8s;
+  }
+
+  .steps-section__slider {
+    user-select: none;
+    cursor: grab;
   }
 }
 
