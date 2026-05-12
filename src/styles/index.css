@@ -53,6 +53,24 @@
   display: unset;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+body::-webkit-scrollbar {
+  width: 9px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+}
+
+#info,
+#support {
+  scroll-behavior: smooth;
+  scroll-margin-top: calc(var(--header-height) + 30px);
+}
+
 .container {
   max-width: 1366px;
   padding: 0 72px;

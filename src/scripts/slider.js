@@ -362,9 +362,9 @@ export class Slider {
 
   changeSlide(slideNumber) {
     if (slideNumber > this.totalSlides - 1) {
-      this.currentSlide = this.loop ? 0 : this.totalSlides - 1;
+      this.currentSlide = this.totalSlides - 1;
     } else if (slideNumber < 0) {
-      this.currentSlide = this.loop ? this.totalSlides - 1 : 0;
+      this.currentSlide = 0;
     } else {
       this.currentSlide = slideNumber;
     }
@@ -451,7 +451,7 @@ export class Slider {
     this.element.addEventListener('pointermove', this.onPointerMove);
   }
 
-  #handlePointerUp() {
+  #handlePointerUp(event) {
     this.element.removeEventListener('pointermove', this.onPointerMove);
     this.element.classList.remove('is_grabbed');
 
@@ -468,6 +468,7 @@ export class Slider {
     }
 
     this.pointerOffset = 0;
+    this.element.releasePointerCapture(event.pointerId);
   }
 
   #attachDragEvents() {
