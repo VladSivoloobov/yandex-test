@@ -640,19 +640,21 @@
 /* Big Laptops*/
 @media screen and (min-width: 1280px) and (max-width: 1440.98px) {
   .hero-section {
-    background:
-      url('/src/images/background-pattern.avif') center,
-      url('/src/images/background-city-small.png') no-repeat,
-      var(--color-hero-background);
-    background-size: cover, cover;
     background-position:
       center,
-      bottom right;
+      bottom right 50%;
+    background-size: cover, 130%;
   }
 }
 
 /* Small Laptops */
 @media screen and (min-width: 992px) and (max-width: 1279.98px) {
+  .hero-section {
+    background-position:
+      center,
+      bottom right -30vw;
+    background-size: cover, 130%;
+  }
 }
 
 /* Tablet */
