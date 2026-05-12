@@ -417,15 +417,6 @@ body::-webkit-scrollbar-thumb {
   transition: background-color 0.3s;
 }
 
-.slider-button:hover {
-  background-color: var(--color-button-hover);
-}
-
-.slider-button:hover::after,
-.slider-button:hover::before {
-  background-color: white;
-}
-
 .slider-button:disabled {
   background-color: var(--color-button-disabled);
 }
@@ -603,21 +594,6 @@ body::-webkit-scrollbar-thumb {
   border-radius: 62px;
 }
 
-.btn.btn_primary:hover {
-  background-color: var(--color-button-hover);
-  color: var(--color-button-primary);
-}
-
-.btn.btn_secondary:hover {
-  background-color: var(--color-button-primary);
-  color: white;
-}
-
-.btn.btn_tertiary:hover {
-  background-color: var(--color-button-tertiary);
-  color: white;
-}
-
 .size_xl {
   font-size: var(--font-xl);
 }
@@ -697,8 +673,8 @@ body::-webkit-scrollbar-thumb {
     padding-bottom: 291px;
     background-position:
       center,
-      right 10% bottom;
-    background-size: cover, 800px;
+      right 23% bottom;
+    background-size: cover, 900px;
   }
 
   /*
@@ -735,6 +711,11 @@ body::-webkit-scrollbar-thumb {
   .hero-content__hero-buttons {
     gap: 16px;
     flex-direction: column;
+    height: auto;
+  }
+
+  .hero-content__hero-buttons .btn {
+    max-height: 47px;
   }
 
   .hero-content__hero-buttons .btn br {
@@ -994,5 +975,31 @@ body::-webkit-scrollbar-thumb {
 @media screen and (max-width: 374px) {
   .steps-section__step-grid {
     height: 500px;
+  }
+}
+
+@media (hover: hover) {
+  .slider-button:hover {
+    background-color: var(--color-button-hover);
+  }
+
+  .btn.btn_primary:hover {
+    background-color: var(--color-button-hover);
+    color: var(--color-button-primary);
+  }
+
+  .btn.btn_secondary:hover {
+    background-color: var(--color-button-primary);
+    color: white;
+  }
+
+  .btn.btn_tertiary:hover {
+    background-color: var(--color-button-tertiary);
+    color: white;
+  }
+
+  .slider-button:hover::after,
+  .slider-button:hover::before {
+    background-color: white;
   }
 }
