@@ -161,6 +161,10 @@ body::-webkit-scrollbar-thumb {
   width: max-content;
 }
 
+.slider .slider__inner {
+  will-change: transform;
+}
+
 .scrolling-text .scrolling-text__item {
   color: var(--color-text-white);
   font-size: var(--font-2l);
@@ -722,6 +726,11 @@ body::-webkit-scrollbar-thumb {
     display: none;
   }
 
+  .step-grid__image {
+    will-change: transform;
+    z-index: 3;
+  }
+
   .only-mobile {
     display: unset;
   }
@@ -876,12 +885,17 @@ body::-webkit-scrollbar-thumb {
     aspect-ratio: 335 / 182;
     margin: auto;
     transition: transform 0.8s;
+    will-change: transform;
   }
 
   .steps-section__slider {
     user-select: none;
     cursor: grab;
     margin-bottom: 28px;
+  }
+
+  .slider {
+    touch-action: pan-y;
   }
 
   .steps-section__navigation {

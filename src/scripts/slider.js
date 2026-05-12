@@ -61,6 +61,12 @@ export class Slider {
     this.mediaQueries = [];
     this.currentBreakpointKey = null;
 
+    this.cloneCount = 0;
+    this.isTransitioning = false;
+    this.transitionUnlockTimer = null;
+    this.loopTransitionHandler = null;
+    this.loopFallbackTimer = null;
+
     this.onResize = this.#handleResize.bind(this);
     this.onPointerMove = this.#handlePointerMove.bind(this);
     this.onPointerDown = this.#handlePointerDown.bind(this);
@@ -164,14 +170,34 @@ export class Slider {
     }
 
     if (this.autoTimer) {
-      window.clearInterval(this.autoTimer);
+      window.clearTimeout(this.autoTimer);
       this.autoTimer = null;
     }
 
+    if (this.loopTransitionHandler && this.wrapper) {
+      this.wrapper.removeEventListener(
+        'transitionend',
+        this.loopTransitionHandler,
+      );
+    }
+    this.loopTransitionHandler = null;
+    if (this.loopFallbackTimer) {
+      window.clearTimeout(this.loopFallbackTimer);
+      this.loopFallbackTimer = null;
+    }
+    if (this.transitionUnlockTimer) {
+      window.clearTimeout(this.transitionUnlockTimer);
+      this.transitionUnlockTimer = null;
+    }
+    this.isTransitioning = false;
+
     if (this.wrapper) {
+      const clones = this.wrapper.querySelectorAll('.slider__slide_clone');
+      clones.forEach((clone) => clone.remove());
       this.wrapper.style.transform = '';
       this.wrapper.style.transition = '';
     }
+    this.cloneCount = 0;
 
     this.slides.forEach((slide) => {
       slide.style.width = '';
@@ -222,10 +248,31 @@ export class Slider {
     if (!this.auto?.delay) {
       return;
     }
+    this.#scheduleAutoSlide();
+  }
 
-    this.autoTimer = window.setInterval(() => {
+  #scheduleAutoSlide() {
+    if (!this.auto?.delay) {
+      return;
+    }
+    if (this.autoTimer) {
+      window.clearTimeout(this.autoTimer);
+    }
+    this.autoTimer = window.setTimeout(() => {
+      this.autoTimer = null;
       this.nextSlide();
     }, this.auto.delay);
+  }
+
+  #beginTransitionLock(duration) {
+    this.isTransitioning = true;
+    if (this.transitionUnlockTimer) {
+      clearTimeout(this.transitionUnlockTimer);
+    }
+    this.transitionUnlockTimer = window.setTimeout(() => {
+      this.transitionUnlockTimer = null;
+      this.isTransitioning = false;
+    }, duration);
   }
 
   #initialize() {
@@ -234,7 +281,6 @@ export class Slider {
     }
 
     this.wrapper = this.element.querySelector('.slider__inner');
-    this.slides = this.wrapper?.querySelectorAll('.slider__slide') ?? [];
     this.groupIncludes = Array.from(
       this.element.querySelectorAll('.group_include'),
     );
@@ -242,10 +288,21 @@ export class Slider {
     this.totalSlides = Math.max(
       1,
       Math.ceil(
-        this.element.querySelectorAll('.slider__slide:not(.group_included)')
-          .length / this.slidePerView,
+        this.element.querySelectorAll(
+          '.slider__slide:not(.group_included):not(.slider__slide_clone)',
+        ).length / this.slidePerView,
       ),
     );
+
+    this.cloneCount = 0;
+    if (this.loop && this.wrapper && this.totalSlides > 1) {
+      this.#createLoopClones();
+    }
+
+    this.slides =
+      this.wrapper?.querySelectorAll(
+        '.slider__slide:not(.slider__slide_clone)',
+      ) ?? [];
 
     this.#initializeSlideWidths();
     this.#attachDragEvents();
@@ -262,6 +319,40 @@ export class Slider {
     }
 
     this.initialized = true;
+  }
+
+  #createLoopClones() {
+    const realSlides = Array.from(
+      this.wrapper.querySelectorAll('.slider__slide:not(.slider__slide_clone)'),
+    );
+
+    if (realSlides.length === 0) {
+      return;
+    }
+
+    const count = Math.min(this.slidePerView, realSlides.length);
+    this.cloneCount = count;
+
+    const headSource = realSlides.slice(-count);
+    const tailSource = realSlides.slice(0, count);
+
+    const fragmentHead = document.createDocumentFragment();
+    headSource.forEach((slide) => {
+      const clone = slide.cloneNode(true);
+      clone.classList.add('slider__slide_clone');
+      clone.setAttribute('aria-hidden', 'true');
+      fragmentHead.appendChild(clone);
+    });
+    this.wrapper.prepend(fragmentHead);
+
+    const fragmentTail = document.createDocumentFragment();
+    tailSource.forEach((slide) => {
+      const clone = slide.cloneNode(true);
+      clone.classList.add('slider__slide_clone');
+      clone.setAttribute('aria-hidden', 'true');
+      fragmentTail.appendChild(clone);
+    });
+    this.wrapper.appendChild(fragmentTail);
   }
 
   #disableImageDrag() {
@@ -353,7 +444,7 @@ export class Slider {
       return;
     }
 
-    if (this.currentSlide === conditionNumber) {
+    if (!this.loop && this.currentSlide === conditionNumber) {
       button.setAttribute('disabled', 'true');
     } else {
       button.removeAttribute('disabled');
@@ -361,6 +452,8 @@ export class Slider {
   }
 
   changeSlide(slideNumber) {
+    const previousSlide = this.currentSlide;
+
     if (slideNumber > this.totalSlides - 1) {
       this.currentSlide = this.totalSlides - 1;
     } else if (slideNumber < 0) {
@@ -369,13 +462,22 @@ export class Slider {
       this.currentSlide = slideNumber;
     }
 
+    if (previousSlide !== this.currentSlide) {
+      this.#beginTransitionLock(320);
+      if (this.auto?.delay) {
+        this.#scheduleAutoSlide();
+      }
+    }
+
     this.#updateButtonState(0, this.prevButton);
     this.#updateButtonState(this.totalSlides - 1, this.nextButton);
     this.#updatePagination();
     this.#updateVisibleClasses();
 
-    this.currentTransform =
-      -this.currentSlide * (this.slidePerView * (this.slideWidth + this.gap));
+    const pageWidth = this.slidePerView * (this.slideWidth + this.gap);
+    const loopOffset =
+      this.cloneCount > 0 ? this.cloneCount * (this.slideWidth + this.gap) : 0;
+    this.currentTransform = -loopOffset - this.currentSlide * pageWidth;
 
     if (this.onChange) {
       this.onChange(this);
@@ -402,11 +504,108 @@ export class Slider {
   }
 
   nextSlide() {
+    if (this.isTransitioning) {
+      return;
+    }
+    if (this.#shouldLoopAdvance(1)) {
+      this.#loopAdvance(1);
+      return;
+    }
     this.changeSlide(this.currentSlide + 1);
   }
 
   prevSlide() {
+    if (this.isTransitioning) {
+      return;
+    }
+    if (this.#shouldLoopAdvance(-1)) {
+      this.#loopAdvance(-1);
+      return;
+    }
     this.changeSlide(this.currentSlide - 1);
+  }
+
+  #shouldLoopAdvance(direction) {
+    if (
+      !this.loop ||
+      this.cloneCount === 0 ||
+      this.totalSlides <= 1 ||
+      !this.wrapper
+    ) {
+      return false;
+    }
+    return direction > 0
+      ? this.currentSlide === this.totalSlides - 1
+      : this.currentSlide === 0;
+  }
+
+  #loopAdvance(direction) {
+    this.isTransitioning = true;
+    if (this.transitionUnlockTimer) {
+      window.clearTimeout(this.transitionUnlockTimer);
+      this.transitionUnlockTimer = null;
+    }
+
+    if (this.auto?.delay) {
+      this.#scheduleAutoSlide();
+    }
+
+    const pageWidth = this.slidePerView * (this.slideWidth + this.gap);
+    const loopOffset = this.cloneCount * (this.slideWidth + this.gap);
+
+    const phantomSlide = direction > 0 ? this.totalSlides : -1;
+    const phantomTransform = -loopOffset - phantomSlide * pageWidth;
+
+    const targetSlide = direction > 0 ? 0 : this.totalSlides - 1;
+    const targetTransform = -loopOffset - targetSlide * pageWidth;
+
+    this.currentSlide = targetSlide;
+    this.#updateButtonState(0, this.prevButton);
+    this.#updateButtonState(this.totalSlides - 1, this.nextButton);
+    this.#updatePagination();
+    this.#updateVisibleClasses();
+
+    this.wrapper.style.transition = 'transform 0.3s ease';
+    this.wrapper.style.transform = `translateX(${phantomTransform}px)`;
+    this.currentTransform = phantomTransform;
+
+    if (this.onChange) {
+      this.onChange(this);
+    }
+
+    let finished = false;
+    const finish = (event) => {
+      if (event && event.propertyName && event.propertyName !== 'transform') {
+        return;
+      }
+      if (finished) {
+        return;
+      }
+      finished = true;
+
+      if (this.loopTransitionHandler) {
+        this.wrapper.removeEventListener(
+          'transitionend',
+          this.loopTransitionHandler,
+        );
+        this.loopTransitionHandler = null;
+      }
+      if (this.loopFallbackTimer) {
+        window.clearTimeout(this.loopFallbackTimer);
+        this.loopFallbackTimer = null;
+      }
+
+      this.wrapper.style.transition = 'none';
+      this.wrapper.style.transform = `translateX(${targetTransform}px)`;
+      this.currentTransform = targetTransform;
+      void this.wrapper.offsetWidth;
+      this.wrapper.style.transition = '';
+      this.isTransitioning = false;
+    };
+
+    this.loopTransitionHandler = finish;
+    this.wrapper.addEventListener('transitionend', finish);
+    this.loopFallbackTimer = window.setTimeout(() => finish(), 450);
   }
 
   #handleResize() {
@@ -417,7 +616,8 @@ export class Slider {
     const wrapperWidth = this.element.offsetWidth;
     this.slideWidth = wrapperWidth / this.slidePerView;
 
-    for (const slide of this.slides) {
+    const allSlides = this.wrapper.querySelectorAll('.slider__slide');
+    for (const slide of allSlides) {
       slide.style.width = `${this.slideWidth}px`;
     }
 

@@ -1,17 +1,6 @@
-/**
- * @fileoverview
- * This file is implementing the adaptive infinite
- * slider with text.
- *
- * This slider can adaptive to any screen resolution
- * and add more items or remove them depending on
- * screen size in realtime.
- */
-
 import { onEvent } from './utils.js';
 
 /**
- * Return children that not duplicate
  * @param {HTMLUListElement} scrollingTextElement
  */
 const getOriginalItems = (scrollingTextElement) =>
@@ -23,16 +12,12 @@ const getDuplicateItems = (scrollingTextElement) =>
   scrollingTextElement.querySelectorAll('.scrolling-text__item.duplicate');
 
 /**
- * Add duplicate class to all input
- * items in classList.
  * @param {HTMLElement} element
  */
 const addDuplicateClassToItems = (elements) =>
   elements.forEach((element) => element.classList.add('duplicate'));
 
 /**
- * Calculate sum of all items in slider,
- * or input items.
  * @param {HTMLUListElement} scrollingTextElement
  * @param {HTMLElement[]?} items
  */
@@ -47,9 +32,6 @@ function calculateScrollingTextItemsWidth(scrollingTextElement, items) {
 }
 
 /**
- * It's duplicate all children items in
- * scrollingTextElement, or duplicate
- * input items and append it to scrollingTextElement
  * @param {HTMLUListElement} scrollingTextElement
  * @param {HTMLLIElement?} items
  */
@@ -67,7 +49,6 @@ function duplicateAndAppend(scrollingTextElement, items) {
 }
 
 /**
- * Filling wrapper with children duplicates by screen size.
  * @param {HTMLUListElement} scrollingTextElement
  * @param {number} groupItemsCount
  */
@@ -106,8 +87,6 @@ function fillScrollingTextByWindowSize(scrollingTextElement, groupItemsCount) {
 }
 
 /**
- * Create infinite slider for running text
- * effect. It's adaptive for width.
  * @param {HTMLUListElement} scrollingTextElement
  */
 export function createScrollingText(scrollingTextElement) {
