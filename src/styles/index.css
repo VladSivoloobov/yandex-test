@@ -342,7 +342,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .step-grid__item {
-  background: url('/src/images/steps-background.avif');
+  background: url('/yandex-test/images/steps-background.avif');
   background-blend-mode: color-burn;
   background-size: cover;
   padding: 20px;
