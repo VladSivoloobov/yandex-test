@@ -372,6 +372,7 @@ body::-webkit-scrollbar-thumb {
 
 .support-info__right .support-section__title {
   margin-bottom: 60px;
+  display: block;
 }
 
 .support-section__table {
