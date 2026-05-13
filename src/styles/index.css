@@ -91,11 +91,18 @@ body::-webkit-scrollbar-thumb {
 }
 
 .hero-section {
+  overflow: hidden;
+  position: relative;
   padding-top: calc(var(--header-height) + 62px - var(--header-padding));
   margin-top: 0;
+  padding-bottom: 132px;
+  background: var(--color-hero-background);
+  margin-bottom: 0;
 }
 
 .hero-section__hero-content {
+  position: relative;
+  z-index: 6;
   max-width: 542px;
 }
 
@@ -125,22 +132,6 @@ body::-webkit-scrollbar-thumb {
 
 .hero-content__hero-buttons .btn {
   flex: 1;
-}
-
-.hero-section {
-  padding-bottom: 132px;
-  background:
-    url('/src/images/background-pattern.avif') center,
-    url('/src/images/background-city.avif') bottom no-repeat,
-    var(--color-hero-background);
-  background-size:
-    cover,
-    1910px 800px;
-  background-position:
-    center,
-    center bottom;
-  background-blend-mode: color-burn, normal;
-  margin-bottom: 0;
 }
 
 .section.scrolling-text-section {
@@ -635,23 +626,122 @@ body::-webkit-scrollbar-thumb {
   display: none;
 }
 
+.hero-section__background-city,
+.hero-section__background-sun,
+.hero-section__background-chess-1,
+.hero-section__background-chess-2,
+.hero-section__background {
+  position: absolute;
+  user-select: none;
+  pointer-events: none;
+}
+
+.hero-section__background-city {
+  z-index: 2;
+  top: auto;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  height: 557px;
+  width: 100%;
+  max-width: 1700px;
+}
+
+@keyframes chess-animation {
+  from {
+    opacity: 0;
+    transform: translateY(50px) rotate(-5deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-section__background-chess-1 {
+  z-index: 4;
+  bottom: 20px;
+  top: auto;
+  right: calc(50% - 650px);
+  left: auto;
+}
+
+.hero-section__background-chess-1 {
+  animation: chess-animation 1.5s forwards;
+}
+
+.hero-section__background-chess-2 {
+  animation: chess-animation 1s forwards;
+}
+
+.hero-section__background-chess-1,
+.hero-section__background-chess-2 {
+  opacity: 0;
+}
+
+.hero-section__background-chess-2 {
+  z-index: 4;
+  bottom: 0;
+  top: auto;
+  right: calc(50% - 350px);
+}
+
+@keyframes rotate-sun {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hero-section__background-sun {
+  z-index: 1;
+  width: 660px;
+  height: 660px;
+  right: calc(50% - 660px);
+  top: 0;
+  left: auto;
+  animation: rotate-sun infinite linear 120s;
+}
+
+.hero-section__background {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 3;
+  mix-blend-mode: color-burn;
+}
+
+.hero-section__background-wrapper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
 /* Big Laptops*/
 @media screen and (min-width: 1280px) and (max-width: 1440.98px) {
-  .hero-section {
-    background-position:
-      center,
-      bottom right 50%;
-    background-size: cover, 130%;
+}
+
+@media screen and (min-width: 992px) and (max-width: 1440.98px) {
+  .hero-section__background-sun {
+    top: -65px;
+    width: 700px;
+    height: 700px;
   }
 }
 
 /* Small Laptops */
 @media screen and (min-width: 992px) and (max-width: 1279.98px) {
-  .hero-section {
-    background-position:
-      center,
-      bottom right -30vw;
-    background-size: cover, 130%;
+  .hero-section__background-wrapper {
+    width: 140vw;
+    left: -8vw;
   }
 }
 
@@ -664,7 +754,7 @@ body::-webkit-scrollbar-thumb {
     --font-l: 20px;
     --font-m: 18px;
     --font-s: 16px;
-    --header-height: 32px + var(--header-padding) * 2;
+    --header-height: calc(32px + var(--header-padding) * 2);
     --header-padding: 18px;
   }
 
@@ -675,15 +765,36 @@ body::-webkit-scrollbar-thumb {
 
   .hero-section {
     padding-bottom: 291px;
-    background-position:
-      center,
-      right 23% bottom;
-    background-size: cover, 900px;
   }
 
-  /*
-    TODO: немного переделать фон на отдельные слои передних фигур
-  */
+  .hero-section__background-city {
+    max-width: 1300px;
+    height: 300px;
+    width: 100%;
+    right: calc(50% + 200px);
+  }
+
+  .hero-section__background-chess-2 {
+    width: 98px;
+    height: 121.63px;
+    object-fit: cover;
+    left: calc(50% - 30px);
+    right: 0;
+    margin: auto;
+  }
+
+  .hero-section__background-sun {
+    width: 310px;
+    height: 310px;
+    bottom: 70px;
+    top: auto;
+    left: auto;
+    right: calc(50% - 280px);
+  }
+
+  .hero-section__background-chess-1 {
+    display: none;
+  }
 
   .hero-section__hero-content {
     margin: 0 auto;
@@ -983,6 +1094,19 @@ body::-webkit-scrollbar-thumb {
 
 /* Mobile */
 @media screen and (max-width: 768.98px) {
+  .hero-section__background-city {
+    object-position: 80%;
+  }
+
+  .hero-section__background-sun {
+    right: calc(50% - 150px);
+  }
+
+  .hero-section__background-chess-2 {
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
 }
 
 /* Very Small Mobile */
